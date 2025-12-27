@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Security System</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <button id="toggleSidebar" title="Toggle Sidebar">❮❮</button>
+
+        <h1>Smart Security System</h1>
+
+        <div class="mode-control">
+            <label>System Mode</label>
+            <select id="systemMode" class="styled-select">
+                <option value="recognition">Recognition</option>
+                <option value="enrollment">Enrollment</option>
+            </select>
+        </div>
+
+        <div id="enrollmentPanel" class="panel hidden">
+            <h2>Enrollment</h2>
+            <input type="text" id="displayName" placeholder="Display Name">
+            <select id="role" class="styled-select">
+                <option value="student">Student</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+            </select>
+            <input type="text" id="department" placeholder="Department">
+            <select id="accessStatus" class="styled-select">
+                <option value="active">Active</option>
+                <option value="revoked">Revoked</option>
+            </select>
+
+            <button id="startEnrollment" class="primary-btn">Start Capture</button>
+            <button id="confirmEnrollment" class="secondary-btn">Confirm Enrollment</button>
+        </div>
+
+        <div id="recognitionInfo" class="panel">
+            <h2>Recognition</h2>
+            <div id="facesInfo">No faces recognized</div>
+        </div>
+
+        <h2>Attendance Log</h2>
+        <div class="attendance-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Person</th>
+                        <th>Status</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceBody"></tbody>
+            </table>
+        </div>
+
+        <div class="panel exit-panel">
+            <button id="exitSystemBtn" class="exit-btn">
+                Exit System
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="video-container">
+            <img id="videoStream" alt="Live Camera">
+            <div id="overlayMessage" class="overlay-message"></div>
+        </div>
+    </main>
+
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+
+# FastAPI / runtime
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ChromaDB
+chroma/
+*.sqlite3
+
+# CSV data
+persons.csv
+attendance.csv
+
+# IDE
+.vscode/
+.idea/
+
+# Node / frontend
+node_modules/
+
+# Media
+*.mp4
+*.avi
+*.mov

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Security System</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Inter, sans-serif;
+    color: white;
+}
+
+.card {
+    background: rgba(0,0,0,0.6);
+    padding: 40px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: fadeIn 1s ease;
+}
+
+.card h1 {
+    margin-bottom: 10px;
+    color: #00ff99;
+}
+
+.card button {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 30px;
+    border: none;
+    background: #00ff99;
+    color: #000;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.card button:hover {
+    transform: scale(1.08);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+    <h1>Smart Security System</h1>
+    <p>AI-powered Face Recognition</p>
+    <button onclick="enterSystem()">Enter System</button>
+</div>
+
+<script>
+function enterSystem() {
+    document.body.style.opacity = "0";
+    setTimeout(() => {
+        window.location.href = "/dashboard";
+    }, 500);
+}
+</script>
+</body>
+</html>
