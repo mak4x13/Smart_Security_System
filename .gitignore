@@ -17,6 +17,8 @@ Thumbs.db
 # ChromaDB
 chroma/
 *.sqlite3
+chromadb_data/
+
 
 # CSV data
 persons.csv
