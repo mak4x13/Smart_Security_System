@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Manage Persons</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 20px;
+    font-size: 24px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.count {
+    color: #22c55e;
+    margin-bottom: 15px;
+}
+
+.panel {
+    margin-bottom: 15px;
+}
+
+button {
+    border: none;
+    padding: 8px 14px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.exit-btn {
+    background: #dc2626;
+    margin-right: 10px;
+    width: 200px;
+    height: 60px;
+    font-size: 20px;
+}
+
+.exit-btn:hover {
+    background: #b91c1c;
+}
+
+.back-btn {
+    background: #2563eb;
+    margin-top: 5px;
+    width: 200px;
+    height: 60px;
+    font-size: 20px;
+}
+
+.back-btn:hover {
+    background: #1d4ed8;
+}
+
+#searchBar {
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 300px;
+    height: 20px;
+    border-radius: 20px;
+    border: 5px solid #374151;
+    background: #020617;
+    color: #e5e7eb;
+    font-size: 20px;
+}
+
+table {
+    width: 50%;
+    border-collapse: collapse;
+    background: #020617;
+    font-size: 30px;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 5px solid #1e293b;
+    text-align: center;
+}
+
+th {
+    background: #020617;
+}
+
+tr:hover {
+    background: #1e293b;
+}
+
+button.delete-btn {
+    background: #dc2626;
+    padding: 4px 8px;
+    font-size: 24px;
+    height: 40px;
+}
+
+button.delete-btn:hover {
+    background: #b91c1c;
+}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+    <button class="exit-btn" onclick="exitSystem()">Exit System</button>
+</div>
+
+<h1>Manage Registered Persons</h1>
+<div class="count" id="count"></div>
+
+<input type="text" id="searchBar" placeholder="Search by name..." onkeyup="searchTable()">
+
+<table>
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Role</th>
+    <th>Department</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+// Stop camera when this page loads
+async function stopCamera() {
+    await fetch("/camera/stop", { method: "POST" });
+}
+
+stopCamera();
+
+async function loadPersons() {
+    const res = await fetch("/admin/persons");
+    const data = await res.json();
+
+    document.getElementById("count").innerText =
+        `Total Registered Persons: ${data.count}`;
+
+    const body = document.getElementById("tableBody");
+    body.innerHTML = "";
+
+    data.persons.forEach(p => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${p.display_name}</td>
+            <td>${p.role}</td>
+            <td>${p.department || "-"}</td>
+            <td>${p.access_status}</td>
+            <td><button class="delete-btn" onclick="deletePerson('${p.person_id}')">Delete</button></td>
+        `;
+
+        body.appendChild(row);
+    });
+}
+
+async function deletePerson(id) {
+    if (!confirm("Are you sure you want to delete this person?")) return;
+
+    await fetch(`/admin/person/${id}`, { method: "DELETE" });
+    loadPersons();
+}
+
+function searchTable() {
+    const input = document.getElementById("searchBar").value.toLowerCase();
+    const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+        const name = rows[i].getElementsByTagName("td")[0].innerText.toLowerCase();
+        rows[i].style.display = name.includes(input) ? "" : "none";
+    }
+}
+
+function goBack() {
+    window.location.href = "/dashboard";
+}
+
+function exitSystem() {
+    if (confirm("Are you sure you want to exit the system?")) {
+        fetch("/camera/stop", { method: "POST" }).finally(() => {
+            window.close();
+        });
+    }
+}
+
+// Initial load
+loadPersons();
+</script>
+
+</body>
+</html>

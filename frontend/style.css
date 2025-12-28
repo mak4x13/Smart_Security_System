@@ -150,7 +150,7 @@ button:hover {
 }
 
 .attendance-table {
-    max-height: 450px;
+    max-height: 350px;
     overflow-y: auto;
 }
 
@@ -189,4 +189,19 @@ button:hover {
 
 .exit-btn:hover {
     background: #e63939;
+}
+
+.manage-btn {
+    background: #2563eb;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 8px 14px;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.manage-btn:hover {
+    background: #1d4ed8;
 }

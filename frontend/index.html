@@ -24,7 +24,7 @@
             </select>
         </div>
 
-        <div id="enrollmentPanel" class="panel hidden">
+        <div id="enrollment-panel" class="panel hidden">
             <h2>Enrollment</h2>
             <input type="text" id="displayName" placeholder="Display Name">
             <select id="role" class="styled-select">
@@ -67,12 +67,16 @@
                 Exit System
             </button>
         </div>
+            <button class="manage-btn" onclick="window.location.href='/static/manage_persons.html'">
+            Manage Persons
+        </button>
 
     </aside>
 
     <!-- Main -->
     <main class="main">
         <div class="video-container">
+            <h1>    Live Camera Feed    </h1>
             <img id="videoStream" alt="Live Camera">
             <div id="overlayMessage" class="overlay-message"></div>
         </div>

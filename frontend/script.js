@@ -23,12 +23,28 @@ window.addEventListener("load", () => {
     document.getElementById("videoStream").src = "/video_feed";
 });
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     updateModeUI("recognition");
+// });
+
+fetch("/system/mode/recognition", { method: "POST" });
+
 function exitSystem() {
     fetch("/camera/stop", { method: "POST" })
         .finally(() => {
             document.getElementById("videoStream").src = "";
             window.location.href = "/";
         });
+}
+
+function updateModeUI(mode) {
+    const enrollPanel = document.getElementById("enrollment-panel");
+
+    if (mode === "recognition") {
+        enrollPanel.style.display = "none";
+    } else if (mode === "enrollment") {
+        enrollPanel.style.display = "block";
+    }
 }
 
 // Collapsible sidebar (use existing HTML button)
@@ -40,35 +56,31 @@ if (confirmBtn) confirmBtn.disabled = true;
 /* Sidebar toggle */
 toggleBtn.onclick = () => {
     sidebar.classList.toggle("collapsed");
-    toggleBtn.textContent = sidebar.classList.contains("collapsed") ? "❯" : "❮";
+    toggleBtn.textContent = sidebar.classList.contains("collapsed") ? "❯❯" : "❮❮";
 };
 
-// function exitSystem() {
-//     document.getElementById("videoStream").src = "";
-//     window.location.href = "/";
-// }
+
 
 
 // System mode change
 systemMode.addEventListener("change", async () => {
+    document.getElementById("videoStream").src = "";
 
     hideOverlay();
     enrollmentActive = false;
 
-    if (systemMode.value === "enrollment") {
-        enrollmentPanel.classList.remove("hidden");
-        recognitionInfo.classList.add("hidden");
-    } else {
-        enrollmentPanel.classList.add("hidden");
-        recognitionInfo.classList.remove("hidden");
-    }
+    updateModeUI(systemMode.value);
+
     await fetch(`/system/mode/${systemMode.value}`, { method: "POST" });
+    document.getElementById("videoStream").src = "/video_feed";
 });
 
 /* Overlay helper */
 function showOverlay(msg, color="#00ff99") {
     overlayMessage.innerText = msg;
     overlayMessage.style.color = color;
+    overlayMessage.style.fontSize = "40px";
+    overlayMessage.style.fontWeight = "600";
     overlayMessage.style.display = "block";
 }
 
@@ -84,7 +96,7 @@ async function fetchRecognition() {
 
         if (data.faces && data.faces.length > 0) {
             facesInfo.innerHTML = data.faces.map(f =>
-                `<strong>${f.display_name}</strong> | ${f.role} | ${f.access_status} | d=${f.distance.toFixed(2)}`
+                `<strong>${f.display_name}</strong> | ${f.role} | ${f.access_status} | d=${f.distance !== null ? f.distance.toFixed(2) : "--"}`
             ).join("<br>");
         } else {
             facesInfo.innerHTML = "No faces recognized";
@@ -125,7 +137,7 @@ async function captureLoop() {
         }
 
         if (data.status === "ok") {
-            showOverlay(`Pose ${data.count}/10 | Quality ${data.quality}`);
+            showOverlay(`${poses[data.count - 1]} (${data.count}/10) | Quality ${data.quality}`);
 
             confirmBtn.disabled = !data.done;
 
@@ -182,13 +194,7 @@ document.getElementById("confirmEnrollment").addEventListener("click", async () 
 });
 
 // Force correct UI on page load
-if (systemMode.value === "recognition") {
-    enrollmentPanel.classList.add("hidden");
-    recognitionInfo.classList.remove("hidden");
-} else {
-    enrollmentPanel.classList.remove("hidden");
-    recognitionInfo.classList.add("hidden");
-}
+updateModeUI(systemMode.value);
 
 document.getElementById("exitSystemBtn").addEventListener("click", () => {
     exitSystem();

@@ -5,6 +5,9 @@ import time
 class VideoCamera:
     def __init__(self, src=0):
         self.cap = cv2.VideoCapture(src)
+
+        if not self.cap.isOpened():
+            raise RuntimeError("Camera failed to open")
         self.lock = Lock()
         self.running = True
         self.frame = None
