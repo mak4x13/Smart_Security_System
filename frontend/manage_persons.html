@@ -186,9 +186,13 @@ function goBack() {
 
 function exitSystem() {
     if (confirm("Are you sure you want to exit the system?")) {
-        fetch("/camera/stop", { method: "POST" }).finally(() => {
-            window.close();
-        });
+        // Stop camera but don’t block
+        fetch("/camera/stop", { method: "POST" })
+            .catch(console.error)    // handle errors
+            .finally(() => {
+                // Redirect to home page
+                window.location.href = "/";
+            });
     }
 }
 
