@@ -133,7 +133,7 @@ def validate_expected_pose(expected_pose: str, pose_deg, smile_ratio: float, fac
     NEUTRAL_MAX_RATIO = 4.6
 
     face_ratio = face_box_area / max(frame_area, 1)
-    MOVE_BACK_MAX_RATIO = 0.10
+    MOVE_BACK_MAX_RATIO = 0.20
 
     ep = expected_pose.lower()
 

@@ -9,6 +9,12 @@ from backend.recognition import recognize_face
 from backend.enrollment import generate_person_id, add_embedding, finalize_enrollment, CURRENT_SESSION
 from backend.attendance import log_attendance, read_attendance
 from backend.quality import face_quality
+from backend.config import (
+    DETECTION_ENHANCE,
+    DETECTION_UPSCALE,
+    DETECTION_FRAME_SKIP,
+    DETECTION_HOLD_FRAMES,
+)
 from backend.admin import list_persons, delete_person
 from backend.pose_validation import analyze_pose_and_draw, validate_expected_pose, POSES
 
@@ -38,6 +44,7 @@ OVERLAY_MESSAGE = ""
 OVERLAY_COLOR = (0, 0, 255)  # red by default
 
 LAST_BOXES = []
+LAST_BOXES_AGE = 0
 
 LAST_FRAME = None
 
@@ -76,7 +83,7 @@ def release_camera():
 # MJPEG Video Stream
 def gen_frames():
     frame_count = 0
-    global LAST_FRAME, CAMERA_ACTIVE, LAST_RECOGNITIONS, LAST_RECOGNITION_TIME, LAST_BOXES
+    global LAST_FRAME, CAMERA_ACTIVE, LAST_RECOGNITIONS, LAST_RECOGNITION_TIME, LAST_BOXES, LAST_BOXES_AGE
 
     while CAMERA_ACTIVE:
         cam = get_camera()
@@ -89,10 +96,21 @@ def gen_frames():
 
         frame_count += 1
 
-        # Detect faces every 3rd frame
-        if frame_count % 3 == 0:
+        # Detect faces every N frames; keep last boxes briefly if detection misses.
+        if frame_count % DETECTION_FRAME_SKIP == 0:
+            detected = detect_faces(
+                frame,
+                enhance=DETECTION_ENHANCE,
+                upscale=DETECTION_UPSCALE
+            )
             with STATE_LOCK:
-                LAST_BOXES = detect_faces(frame)
+                if detected:
+                    LAST_BOXES = detected
+                    LAST_BOXES_AGE = 0
+                else:
+                    LAST_BOXES_AGE += 1
+                    if LAST_BOXES_AGE > DETECTION_HOLD_FRAMES:
+                        LAST_BOXES = []
 
         boxes = LAST_BOXES
         current_recognitions = []
@@ -281,7 +299,11 @@ async def enroll_capture():
         OVERLAY_MESSAGE = "Camera not ready"
         return {"status": "error", "message": OVERLAY_MESSAGE}
 
-    boxes = detect_faces(frame)
+    boxes = detect_faces(
+        frame,
+        enhance=DETECTION_ENHANCE,
+        upscale=DETECTION_UPSCALE
+    )
     if len(boxes) != 1:
         OVERLAY_MESSAGE = "Ensure exactly ONE face"
         CURRENT_SESSION["valid_streak"] = 0
