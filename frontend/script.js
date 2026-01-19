@@ -4,6 +4,8 @@ const recognitionInfo = document.getElementById("recognitionInfo");
 const facesInfo = document.getElementById("facesInfo");
 const attendanceBody = document.getElementById("attendanceBody");
 const confirmBtn = document.getElementById("confirmEnrollment");
+const overlayMessage = document.getElementById("overlayMessage");
+const enrollStatus = document.getElementById("enrollStatus");
 
 const poses = [
     "Look straight",
@@ -51,7 +53,10 @@ function updateModeUI(mode) {
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleSidebar");
 
-if (confirmBtn) confirmBtn.disabled = true;
+if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.classList.remove("active");
+}
 
 /* Sidebar toggle */
 toggleBtn.onclick = () => {
@@ -77,6 +82,7 @@ systemMode.addEventListener("change", async () => {
 
 /* Overlay helper */
 function showOverlay(msg, color="#00ff99") {
+    if (!overlayMessage) return;
     overlayMessage.innerText = msg;
     overlayMessage.style.color = color;
     overlayMessage.style.fontSize = "40px";
@@ -85,7 +91,21 @@ function showOverlay(msg, color="#00ff99") {
 }
 
 function hideOverlay() {
+    if (!overlayMessage) return;
     overlayMessage.style.display = "none";
+}
+
+function setEnrollStatus(msg, color="#00ff99") {
+    if (enrollStatus) {
+        enrollStatus.innerText = msg;
+    }
+    showOverlay(msg, color);
+}
+
+function setConfirmState(isDone) {
+    if (!confirmBtn) return;
+    confirmBtn.disabled = !isDone;
+    confirmBtn.classList.toggle("active", isDone);
 }
 
 // Fetch live recognition info every second
@@ -130,29 +150,28 @@ async function captureLoop() {
         const data = await res.json();
 
         if (data.status === "duplicate") {
-            showOverlay("Person already exists. Restarting enrollment", "#ff4444");
-            confirmBtn.disabled = true;
-            setTimeout(captureLoop, 1500);
+            setEnrollStatus("Person already exists. Restarting enrollment", "#ff4444");
+            setConfirmState(false);
+            setTimeout(captureLoop, 800);
             return;
         }
 
         if (data.status === "ok") {
-            showOverlay(`${poses[data.count - 1]} (${data.count}/10) | Quality ${data.quality}`);
-
-            confirmBtn.disabled = !data.done;
+            setEnrollStatus(`${poses[data.count - 1]} (${data.count}/10) | Quality ${data.quality}`);
+            setConfirmState(data.done);
 
             if (!data.done) {
-                setTimeout(captureLoop, 700);
+                setTimeout(captureLoop, 400);
             } else {
-                showOverlay("Capture complete ✔ Click Confirm");
+                setEnrollStatus("Capture complete. Click Confirm");
             }
         } else {
-            document.getElementById("enrollStatus").innerText = data.message || "Error during capture";
-            setTimeout(captureLoop, 1000);
+            setEnrollStatus(data.message || "Error during capture", "#ff4444");
+            setTimeout(captureLoop, 500);
         }
     } catch (err) {
         console.error(err);
-        setTimeout(captureLoop, 1500);
+        setTimeout(captureLoop, 800);
     }
 }
 
@@ -165,7 +184,7 @@ document.getElementById("startEnrollment").addEventListener("click", async () =>
     await fetch("/enroll/start", { method: "POST" });
 
     enrollmentActive = true;
-    showOverlay("Enrollment started. Look at camera.");
+    setEnrollStatus("Enrollment started. Look at camera.");
 
     captureLoop();
 });
@@ -187,7 +206,7 @@ document.getElementById("confirmEnrollment").addEventListener("click", async () 
     });
 
     const data = await res.json();
-    document.getElementById("enrollStatus").innerText = "Enrollment successful ✔";
+    setEnrollStatus("Enrollment successful.");
 
     systemMode.value = "recognition";
     systemMode.dispatchEvent(new Event("change"));

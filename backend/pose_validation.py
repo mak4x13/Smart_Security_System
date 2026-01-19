@@ -127,8 +127,10 @@ def validate_expected_pose(expected_pose: str, pose_deg, smile_ratio: float, fac
 
     TURN_YAW = 22
     UP_PITCH = 15
-    DOWN_PITCH = 10
+    DOWN_PITCH = 6
     TILT_ROLL = 12
+    SMILE_MIN_RATIO = 4.0
+    NEUTRAL_MAX_RATIO = 4.6
 
     face_ratio = face_box_area / max(frame_area, 1)
     MOVE_BACK_MAX_RATIO = 0.10
@@ -172,12 +174,12 @@ def validate_expected_pose(expected_pose: str, pose_deg, smile_ratio: float, fac
 
     # Bigger smile_ratio means more smile-like.
     if ep == "smile":
-        if smile_ratio > 4.0:
+        if smile_ratio > SMILE_MIN_RATIO:
             return True, "OK"
         return False, "Smile clearly"
 
     if ep == "neutral face":
-        if smile_ratio <= 4.0:
+        if smile_ratio <= NEUTRAL_MAX_RATIO:
             return True, "OK"
         return False, "Neutral face"
 

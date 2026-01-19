@@ -93,6 +93,19 @@ body, html {
     margin-top: 8px;
 }
 
+.secondary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.secondary-btn:not(:disabled),
+.secondary-btn.active {
+    background: #00ff99;
+    color: #000;
+    font-weight: bold;
+}
+
 button {
     padding: 10px;
     border-radius: 6px;
@@ -111,6 +124,13 @@ button:hover {
     padding: 10px;
     margin-top: 15px;
     border-radius: 8px;
+}
+
+.enroll-status {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #cfcfcf;
+    min-height: 18px;
 }
 
 /* --- Main --- */
