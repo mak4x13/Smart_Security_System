@@ -1,6 +1,7 @@
 import uuid
 import csv
 import os
+from datetime import datetime
 import numpy as np
 import chromadb
 from backend.config import PERSONS_CSV, CHROMA_PATH, SAMPLES_REQUIRED
@@ -16,6 +17,23 @@ CURRENT_SESSION = {
     "embeddings": [],
     "count": 0
 }
+
+def _ensure_enrolled_at_header():
+    if not os.path.exists(PERSONS_CSV):
+        return
+    with open(PERSONS_CSV, newline="", encoding="utf-8") as f:
+        rows = list(csv.reader(f))
+    if not rows:
+        return
+    header = rows[0]
+    if "enrolled_at" in header:
+        return
+    header.append("enrolled_at")
+    for row in rows[1:]:
+        row.append("")
+    with open(PERSONS_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
 
 def generate_person_id():
     pid = f"PID_{uuid.uuid4().hex[:8]}"
@@ -54,6 +72,8 @@ def finalize_enrollment(display_name, role, department, access_status):
 
     pid = CURRENT_SESSION["person_id"]
 
+    _ensure_enrolled_at_header()
+
     collection.add(
         embeddings=[centroid.tolist()],
         metadatas=[{"person_id": pid}],
@@ -65,9 +85,16 @@ def finalize_enrollment(display_name, role, department, access_status):
         writer = csv.writer(f)
         if header_needed:
             writer.writerow(
-                ["person_id", "display_name", "role", "department", "access_status"]
+                ["person_id", "display_name", "role", "department", "access_status", "enrolled_at"]
             )
-        writer.writerow([pid, display_name, role, department, access_status])
+        writer.writerow([
+            pid,
+            display_name,
+            role,
+            department,
+            access_status,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        ])
 
     CURRENT_SESSION["person_id"] = None
     CURRENT_SESSION["embeddings"] = []

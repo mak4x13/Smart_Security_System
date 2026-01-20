@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +21,7 @@ from backend.config import (
 )
 from backend.admin import list_persons, delete_person
 from backend.pose_validation import analyze_pose_and_draw, validate_expected_pose, POSES
+from backend.chatbot import answer_chat
 
 import cv2
 import numpy as np
@@ -36,6 +41,10 @@ def home():
 @app.get("/dashboard")
 def dashboard():
     return FileResponse("frontend/index.html")
+
+@app.get("/chatbot")
+def chatbot():
+    return FileResponse("frontend/chatbot.html")
 
 # Global Camera Singleton
 camera = None
@@ -490,6 +499,17 @@ async def attendance_today():
     Return all logged attendance entries
     """
     return JSONResponse(read_attendance(today_only=True))
+
+
+@app.post("/chat")
+async def chat(request: Request):
+    data = await request.json()
+    message = (data.get("message") or "").strip()
+    memory = data.get("memory") or {}
+    if not message:
+        return JSONResponse({"error": "Message is required."}, status_code=400)
+
+    return JSONResponse(answer_chat(message, memory))
 
 
 # admin panel endpoints
