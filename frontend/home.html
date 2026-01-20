@@ -3,73 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <title>Smart Security System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+:root {
+    --bg-0: #070d0b;
+    --bg-1: #0b1512;
+    --panel: rgba(10, 20, 17, 0.92);
+    --panel-strong: #0f1f1a;
+    --text: #e6f6ef;
+    --muted: #8ab3a3;
+    --accent: #00ff99;
+    --accent-2: #7dfacb;
+    --line: rgba(0, 255, 153, 0.18);
+    --shadow: rgba(0, 0, 0, 0.45);
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    height: 100vh;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    background:
+        radial-gradient(900px 450px at 10% 0%, rgba(0, 255, 153, 0.12), transparent 65%),
+        radial-gradient(800px 500px at 95% 10%, rgba(125, 250, 203, 0.12), transparent 60%),
+        linear-gradient(140deg, var(--bg-0), var(--bg-1));
+    color: var(--text);
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-family: Inter, sans-serif;
-    color: white;
+    justify-content: center;
+    padding: 24px;
 }
 
-.card {
-    background: rgba(0,0,0,0.6);
-    padding: 50px;
-    padding-top: 100px;
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(120deg, rgba(0, 255, 153, 0.05) 1px, transparent 1px),
+        linear-gradient(60deg, rgba(0, 255, 153, 0.04) 1px, transparent 1px);
+    background-size: 140px 140px;
+    pointer-events: none;
+    opacity: 0.25;
+}
+
+.hero {
+    width: min(1100px, 100%);
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 24px;
+}
+
+.hero-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 20px 40px var(--shadow);
+    backdrop-filter: blur(6px);
+    animation: fadeUp 0.6s ease both;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    background: rgba(0, 255, 153, 0.12);
+    border: 1px solid rgba(0, 255, 153, 0.3);
+    padding: 6px 12px;
+    border-radius: 999px;
+}
+
+h1 {
+    margin: 18px 0 12px;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.2;
+}
+
+.hero-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.cta-row {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cta-row button {
+    border: 1px solid var(--line);
+    padding: 12px 20px;
     border-radius: 14px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: fadeIn 1s ease;
-    width: 500px;
-    height: 250px;
-}
-
-.card h1 {
-    margin-bottom: 10px;
-    color: #00ff99;
-    font-size: 36px;
-}
-
-.card button {
-    margin-top: 20px;
-    padding: 12px 30px;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 30px;
-    border: none;
-    background: #00ff99;
-    color: #000;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.card button:hover {
-    transform: scale(1.08);
+.cta-row button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0, 255, 153, 0.5);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+.cta-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #02130b;
+}
+
+.cta-ghost {
+    background: transparent;
+    color: var(--text);
+}
+
+.info-grid {
+    display: grid;
+    gap: 14px;
+    animation: fadeUp 0.7s ease 0.08s both;
+}
+
+.info-card {
+    background: rgba(6, 12, 10, 0.92);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 20px 40px var(--shadow);
+    backdrop-filter: blur(6px);
+}
+
+.info-card h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    color: var(--accent);
+}
+
+.info-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.mono {
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 900px) {
+    .hero {
+        grid-template-columns: 1fr;
+    }
+    .hero-card,
+    .info-card {
+        padding: 24px;
+    }
 }
 </style>
 </head>
 
 <body>
-<div class="card">
-    <h1>Smart Security System</h1>
-    <p>AI-powered Face Recognition</p>
-    <button onclick="enterSystem()">Enter System</button>
+<div class="hero">
+    <section class="hero-card">
+        <div class="badge">Smart Security System</div>
+        <h1>AI-driven security with instant awareness.</h1>
+        <p>
+            Monitor recognition, attendance, and access status in real time.
+            Use the security chatbot to query your logs in natural language.
+        </p>
+        <div class="cta-row">
+            <button class="cta-primary" onclick="enterDashboard()">Enter Dashboard</button>
+            <button class="cta-ghost" onclick="openChatbot()">Open Chatbot</button>
+        </div>
+        <p class="mono">Version 1.0 | Secure local processing</p>
+    </section>
+
+    <aside class="info-grid">
+        <div class="info-card">
+            <h3>Live Recognition</h3>
+            <p>Detect faces, validate enrollment, and log attendance automatically.</p>
+        </div>
+        <div class="info-card">
+            <h3>Operator Tools</h3>
+            <p>Manage persons, review logs, and monitor system mode instantly.</p>
+        </div>
+        <div class="info-card">
+            <h3>Chat Intelligence</h3>
+            <p>Ask questions like “who checked in last week?” and get grounded answers.</p>
+        </div>
+    </aside>
 </div>
 
 <script>
-function enterSystem() {
+function enterDashboard() {
     document.body.style.opacity = "0";
     setTimeout(() => {
         window.location.href = "/dashboard";
+    }, 500);
+}
+
+function openChatbot() {
+    document.body.style.opacity = "0";
+    setTimeout(() => {
+        window.location.href = "/chatbot";
     }, 500);
 }
 </script>

@@ -3,7 +3,7 @@
 import chromadb
 
 # ---------- Config ----------
-PERSIST_DIR = "backend/db/chroma_data"  # path for persistent ChromaDB
+PERSIST_DIR = "backend/db/chromadb_data"  # path for persistent ChromaDB
 COLLECTION_NAME = "face_embeddings"
 
 # ---------- Create Persistent ChromaDB ----------

@@ -3,15 +3,33 @@ import os
 from datetime import datetime, date
 from backend.config import ATTENDANCE_CSV
 
-# In-memory guard to avoid duplicates per day
+# In-memory guard to avoid duplicates per day (per process)
 SEEN_TODAY = set()
+SEEN_DAY = date.today().isoformat()
+
+def _already_logged_today(person_id: str, today: str) -> bool:
+    if not os.path.exists(ATTENDANCE_CSV):
+        return False
+    with open(ATTENDANCE_CSV, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get("person_id") == person_id and row.get("timestamp", "").startswith(today):
+                return True
+    return False
 
 def log_attendance(person_id):
+    global SEEN_DAY
     today = date.today().isoformat()
+    if SEEN_DAY != today:
+        SEEN_TODAY.clear()
+        SEEN_DAY = today
     key = (person_id, today)
 
     if key in SEEN_TODAY:
         return  # already logged today
+    if _already_logged_today(person_id, today):
+        SEEN_TODAY.add(key)
+        return
 
     os.makedirs(os.path.dirname(ATTENDANCE_CSV), exist_ok=True)
 

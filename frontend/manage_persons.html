@@ -3,132 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <title>Manage Persons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+:root {
+    --bg-0: #070d0b;
+    --bg-1: #0b1512;
+    --panel: rgba(10, 20, 17, 0.92);
+    --panel-strong: #0f1f1a;
+    --text: #e6f6ef;
+    --muted: #8ab3a3;
+    --accent: #00ff99;
+    --accent-2: #7dfacb;
+    --line: rgba(0, 255, 153, 0.18);
+    --shadow: rgba(0, 0, 0, 0.45);
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: #e5e7eb;
-    padding: 20px;
-    font-size: 24px;
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    background:
+        radial-gradient(900px 450px at 10% 0%, rgba(0, 255, 153, 0.12), transparent 65%),
+        radial-gradient(800px 500px at 95% 10%, rgba(125, 250, 203, 0.12), transparent 60%),
+        linear-gradient(140deg, var(--bg-0), var(--bg-1));
+    color: var(--text);
+    padding: 24px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(120deg, rgba(0, 255, 153, 0.05) 1px, transparent 1px),
+        linear-gradient(60deg, rgba(0, 255, 153, 0.04) 1px, transparent 1px);
+    background-size: 140px 140px;
+    pointer-events: none;
+    opacity: 0.25;
+}
+
+.page {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 h1 {
-    margin-bottom: 10px;
+    margin: 0;
+    font-size: 28px;
 }
 
 .count {
-    color: #22c55e;
-    margin-bottom: 15px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-size: 16px;
 }
 
 .panel {
-    margin-bottom: 15px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 20px 40px var(--shadow);
+    backdrop-filter: blur(6px);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.actions-left {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 button {
-    border: none;
-    padding: 8px 14px;
-    color: white;
+    border: 1px solid var(--line);
+    padding: 12px 18px;
+    color: var(--text);
     cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
+    border-radius: 12px;
+    font-weight: 600;
+    background: #0b1a16;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0, 255, 153, 0.5);
 }
 
 .exit-btn {
-    background: #dc2626;
-    margin-right: 10px;
-    width: 200px;
-    height: 60px;
-    font-size: 20px;
-}
-
-.exit-btn:hover {
-    background: #b91c1c;
-}
-
-.back-btn {
-    background: #2563eb;
-    margin-top: 5px;
-    width: 200px;
-    height: 60px;
-    font-size: 20px;
-}
-
-.back-btn:hover {
-    background: #1d4ed8;
+    background: #1b0d0d;
+    border-color: rgba(255, 77, 77, 0.5);
+    color: #ffd4d4;
 }
 
 #searchBar {
-    margin-bottom: 10px;
-    padding: 10px;
-    width: 300px;
-    height: 20px;
-    border-radius: 20px;
-    border: 5px solid #374151;
-    background: #020617;
-    color: #e5e7eb;
-    font-size: 20px;
+    padding: 12px 16px;
+    width: min(420px, 100%);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 255, 153, 0.25);
+    background: #08130f;
+    color: var(--text);
+    font-size: 14px;
+    font-family: "JetBrains Mono", "Consolas", monospace;
+    outline: none;
+}
+
+#searchBar:focus {
+    border-color: rgba(0, 255, 153, 0.6);
+    box-shadow: 0 0 0 2px rgba(0, 255, 153, 0.12);
 }
 
 table {
-    width: 50%;
+    width: 100%;
     border-collapse: collapse;
-    background: #020617;
-    font-size: 30px;
+    background: var(--panel-strong);
+    border-radius: 16px;
+    overflow: hidden;
+    font-size: 16px;
 }
 
 th, td {
-    padding: 8px;
-    border-bottom: 5px solid #1e293b;
-    text-align: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(0, 255, 153, 0.1);
+    text-align: left;
 }
 
 th {
-    background: #020617;
+    background: rgba(9, 18, 15, 0.9);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
 }
 
 tr:hover {
-    background: #1e293b;
+    background: rgba(0, 255, 153, 0.06);
 }
 
 button.delete-btn {
-    background: #dc2626;
-    padding: 4px 8px;
-    font-size: 24px;
-    height: 40px;
+    background: rgba(255, 77, 77, 0.15);
+    border: 1px solid rgba(255, 77, 77, 0.5);
+    color: #ffd4d4;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 10px;
 }
 
 button.delete-btn:hover {
-    background: #b91c1c;
+    border-color: rgba(255, 77, 77, 0.8);
+}
+
+.table-panel {
+    padding: 0;
+}
+
+.table-panel table {
+    border-radius: 18px;
+}
+
+@media (max-width: 900px) {
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .actions-left {
+        width: 100%;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="panel">
-    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
-    <button class="exit-btn" onclick="exitSystem()">Exit System</button>
+<div class="page">
+    <div class="panel actions">
+        <div class="actions-left">
+            <button onclick="goBack()">Back to Dashboard</button>
+            <button class="exit-btn" onclick="exitSystem()">Exit System</button>
+        </div>
+        <input type="text" id="searchBar" placeholder="Search by name..." onkeyup="searchTable()">
+    </div>
+
+    <h1>Manage Registered Persons</h1>
+    <div class="count" id="count"></div>
+
+    <div class="panel table-panel">
+        <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 </div>
-
-<h1>Manage Registered Persons</h1>
-<div class="count" id="count"></div>
-
-<input type="text" id="searchBar" placeholder="Search by name..." onkeyup="searchTable()">
-
-<table>
-<thead>
-<tr>
-    <th>Name</th>
-    <th>Role</th>
-    <th>Department</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
 
 <script>
 // Stop camera when this page loads
