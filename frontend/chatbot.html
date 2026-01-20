@@ -415,7 +415,6 @@ const chatBody = document.getElementById("chatBody");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const clearChatBtn = document.getElementById("clearChat");
-const memory = { last_person_id: null, last_person_name: null };
 
 function appendMessage(role, text, meta) {
     const msg = document.createElement("div");
@@ -471,21 +470,13 @@ async function sendMessage(text) {
         const res = await fetch("/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message, memory })
+            body: JSON.stringify({ message })
         });
         const data = await res.json();
         if (!res.ok || data.error) {
             appendMessage("bot", data.error || "Something went wrong.");
         } else {
             appendMessage("bot", data.answer, formatMeta(data.meta));
-            if (data.meta) {
-                if (data.meta.matched_person_id) {
-                    memory.last_person_id = data.meta.matched_person_id;
-                }
-                if (data.meta.matched_display_name) {
-                    memory.last_person_name = data.meta.matched_display_name;
-                }
-            }
         }
     } catch (err) {
         appendMessage("bot", "Unable to reach the server.");
@@ -519,8 +510,7 @@ document.querySelectorAll(".quick-queries button").forEach((btn) => {
 clearChatBtn.addEventListener("click", () => {
     chatBody.innerHTML = "";
     appendMessage("bot", "Chat cleared. Ask me about enrollments or attendance.");
-    memory.last_person_id = null;
-    memory.last_person_name = null;
+    fetch("/chat/clear", { method: "POST" }).catch(() => {});
 });
 
 function exitSystem() {

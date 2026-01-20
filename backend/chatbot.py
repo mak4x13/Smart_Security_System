@@ -256,7 +256,7 @@ def _person_attendance_details(person, attendance_rows, range_key: str, now: dat
     }
 
 
-def _build_context(question: str, memory):
+def _build_context(question: str, memory, history):
     now = datetime.now()
     now_str = now.strftime("%Y-%m-%d %H:%M:%S")
     today_str = now.strftime("%Y-%m-%d")
@@ -274,6 +274,7 @@ def _build_context(question: str, memory):
         "today": today_str,
         "range": {"key": range_key, "label": range_label},
         "name_candidate": name_candidate,
+        "conversation": history[-10:] if history else [],
         "memory": {
             "last_person_id": (memory or {}).get("last_person_id", ""),
             "last_person_name": (memory or {}).get("last_person_name", ""),
@@ -314,8 +315,9 @@ def _ask_groq(question: str, context):
     system_prompt = (
         "You are a helpful security assistant. Answer using ONLY the provided context data. "
         "Respond naturally like a GPT chat (friendly, direct, and concise). "
-        "If the user greets you, greet back and ask how you can help. "
-        "The context includes persons.rows (enrollment records) and attendance.rows (check-in logs). "
+        "If the user greets you, greet back and ask how you can help. Not every time based on context"
+        "The context includes persons.rows (enrollment records), attendance.rows (check-in logs), "
+        "and conversation (recent chat history). "
         "Interpret 'present' or 'enrolled' as being in persons.csv unless the question mentions "
         "attendance or 'checked in'. "
         "For status questions, use access_status from persons.csv. "
@@ -451,8 +453,8 @@ def _fallback_answer(context):
     )
 
 
-def answer_chat(message: str, memory=None):
-    context = _build_context(message, memory or {})
+def answer_chat(message: str, memory=None, history=None):
+    context = _build_context(message, memory or {}, history or [])
     meta = {}
 
     matches = context.get("persons", {}).get("fuzzy_matches", [])

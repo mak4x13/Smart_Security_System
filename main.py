@@ -28,8 +28,14 @@ import numpy as np
 import time
 import atexit
 import threading
+import uuid
 
 app = FastAPI(title="Smart Security System Backend")
+
+SESSION_TTL_SECONDS = 30 * 60
+SESSION_MAX_TURNS = 8
+SESSION_STORE = {}
+SESSION_LOCK = threading.Lock()
 
 # Serve static frontend files
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
@@ -505,11 +511,60 @@ async def attendance_today():
 async def chat(request: Request):
     data = await request.json()
     message = (data.get("message") or "").strip()
-    memory = data.get("memory") or {}
     if not message:
         return JSONResponse({"error": "Message is required."}, status_code=400)
 
-    return JSONResponse(answer_chat(message, memory))
+    now = time.time()
+    new_session = False
+    with SESSION_LOCK:
+        sid = request.cookies.get("chat_session_id")
+        if sid in SESSION_STORE and now - SESSION_STORE[sid]["updated"] > SESSION_TTL_SECONDS:
+            SESSION_STORE.pop(sid, None)
+            sid = None
+        if not sid:
+            sid = uuid.uuid4().hex
+            SESSION_STORE[sid] = {"updated": now, "history": [], "memory": {}}
+            new_session = True
+
+        session = SESSION_STORE[sid]
+        session["updated"] = now
+        history = list(session.get("history", []))
+        memory = dict(session.get("memory", {}))
+
+    try:
+        answer_data = answer_chat(message, memory, history)
+    except Exception:
+        answer_data = {"answer": "I am having trouble right now. Please try again.", "meta": {}}
+
+    with SESSION_LOCK:
+        session = SESSION_STORE.get(sid)
+        if session is not None:
+            session["updated"] = now
+            session["history"].append({"role": "user", "content": message})
+            session["history"].append({"role": "assistant", "content": answer_data.get("answer", "")})
+            if len(session["history"]) > SESSION_MAX_TURNS * 2:
+                session["history"] = session["history"][-SESSION_MAX_TURNS * 2 :]
+
+            meta = answer_data.get("meta") or {}
+            if meta.get("matched_person_id"):
+                session["memory"]["last_person_id"] = meta["matched_person_id"]
+            if meta.get("matched_display_name"):
+                session["memory"]["last_person_name"] = meta["matched_display_name"]
+
+    response = JSONResponse(answer_data)
+    if new_session:
+        response.set_cookie("chat_session_id", sid, httponly=True, samesite="lax")
+    return response
+
+
+@app.post("/chat/clear")
+async def chat_clear(request: Request):
+    sid = request.cookies.get("chat_session_id")
+    if not sid:
+        return {"status": "cleared"}
+    with SESSION_LOCK:
+        SESSION_STORE.pop(sid, None)
+    return {"status": "cleared"}
 
 
 # admin panel endpoints
