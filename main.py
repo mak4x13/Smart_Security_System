@@ -521,7 +521,7 @@ async def chat(request: Request):
         if sid in SESSION_STORE and now - SESSION_STORE[sid]["updated"] > SESSION_TTL_SECONDS:
             SESSION_STORE.pop(sid, None)
             sid = None
-        if not sid:
+        if not sid or sid not in SESSION_STORE:
             sid = uuid.uuid4().hex
             SESSION_STORE[sid] = {"updated": now, "history": [], "memory": {}}
             new_session = True

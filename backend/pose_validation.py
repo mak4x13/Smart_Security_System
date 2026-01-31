@@ -121,19 +121,19 @@ def validate_expected_pose(expected_pose: str, pose_deg, smile_ratio: float, fac
     pitch, yaw, roll = pose_deg
 
     # Wider straight window for noisy webcams.
-    STRAIGHT_YAW = 25
-    STRAIGHT_PITCH = 25
-    STRAIGHT_ROLL = 25
+    STRAIGHT_YAW = 28
+    STRAIGHT_PITCH = 28
+    STRAIGHT_ROLL = 28
 
     TURN_YAW = 22
-    UP_PITCH = 15
+    UP_PITCH = 12
     DOWN_PITCH = 6
-    TILT_ROLL = 12
-    SMILE_MIN_RATIO = 4.0
-    NEUTRAL_MAX_RATIO = 4.6
+    TILT_ROLL = 10
+    SMILE_MIN_RATIO = 4.8
+    NEUTRAL_MAX_RATIO = 3.8
 
     face_ratio = face_box_area / max(frame_area, 1)
-    MOVE_BACK_MAX_RATIO = 0.20
+    MOVE_BACK_MAX_RATIO = 0.15
 
     ep = expected_pose.lower()
 
@@ -179,7 +179,7 @@ def validate_expected_pose(expected_pose: str, pose_deg, smile_ratio: float, fac
         return False, "Smile clearly"
 
     if ep == "neutral face":
-        if smile_ratio <= NEUTRAL_MAX_RATIO:
+        if smile_ratio < NEUTRAL_MAX_RATIO:
             return True, "OK"
         return False, "Neutral face"
 
