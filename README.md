@@ -54,9 +54,11 @@ Smart_Security_System/
 ### 1. Clone and enter project
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/mak4x13/Smart_Security_System.git
 cd Smart_Security_System
 ```
+
+`.git` at the end of the URL is optional for GitHub HTTPS cloning; both with and without `.git` work.
 
 ### 2. Create virtual environment and install dependencies
 
